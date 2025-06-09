@@ -31,7 +31,7 @@ const Button: React.FC<ButtonProps> = ({
 
   return (
     <button
-      className={`${base} ${variants[variant]} ${sizes[size]} ${className}`}
+      className={`cursor-pointer ${base} ${variants[variant]} ${sizes[size]} ${className}`}
       {...props}
     >
       {children}

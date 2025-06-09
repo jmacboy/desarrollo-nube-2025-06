@@ -8,6 +8,7 @@ import {
   type User,
   signOut,
   linkWithCredential,
+  PhoneAuthProvider,
 } from "firebase/auth";
 import { useEffect, useState } from "react";
 import { firebaseAuth } from "../firebase/FirebaseConfig";
@@ -18,11 +19,13 @@ export const useFirebaseUser = () => {
   const navigate = useNavigate();
 
   const [user, setUser] = useState<User | null>(null);
+  const [userLoading, setUserLoading] = useState(true);
   useEffect(() => {
     if (user) {
       return;
     }
     onAuthStateChanged(firebaseAuth, (loggedInUser) => {
+      setUserLoading(false);
       if (loggedInUser) {
         setUser(loggedInUser);
       }
@@ -31,7 +34,6 @@ export const useFirebaseUser = () => {
   const loginWithFirebase = (email: string, password: string) => {
     signInWithEmailAndPassword(firebaseAuth, email, password)
       .then((userCredential) => {
-        // Signed in
         const user = userCredential.user;
         console.log("User signed in:", user);
         navigate("/");
@@ -118,12 +120,33 @@ export const useFirebaseUser = () => {
         console.log("Account linking error", error);
       });
   };
+  const linkWithPhone = async (
+    verificationId: string,
+    verificationCode: string
+  ) => {
+    if (!user) {
+      return false;
+    }
+    const credential = PhoneAuthProvider.credential(
+      verificationId,
+      verificationCode
+    );
+    const userCred = await linkWithCredential(user, credential);
+    if (!userCred) {
+      console.error("Failed to link with phone");
+      return false;
+    }
+    console.log("Account linking success", user);
+    return true;
+  };
   return {
     user,
+    userLoading,
     loginWithFirebase,
     registerWithFirebase,
     loginWithGoogle,
     logout,
     linkWithPassword,
+    linkWithPhone,
   };
 };

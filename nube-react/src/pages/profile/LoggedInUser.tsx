@@ -10,6 +10,7 @@ export const LoggedInUser = () => {
   const { user, logout } = useFirebaseUser();
   const [userHasGoogle, setUserHasGoogle] = useState(false);
   const [userHasPassword, setUserHasPassword] = useState(false);
+  const [userHasPhone, setUserHasPhone] = useState(false);
   useEffect(() => {
     if (!user) {
       return;
@@ -24,12 +25,21 @@ export const LoggedInUser = () => {
       (profile) => profile.providerId === "password"
     );
     setUserHasPassword(hasPassword);
+
+    const hasPhone = user.providerData.some(
+      (profile) => profile.providerId === "phone"
+    );
+    setUserHasPhone(hasPhone);
+
     // for (const profile of user.providerData) {
     //   console.log("Provider ID:", profile.providerId);
     // }
   }, [user]);
   const onAddEmailSignInClicked = () => {
     navigate("/linkpassword");
+  };
+  const onAddPhoneSignInClicked = () => {
+    navigate("/phonecheck");
   };
   return (
     <>
@@ -56,6 +66,17 @@ export const LoggedInUser = () => {
                   onClick={onAddEmailSignInClicked}
                 >
                   Add email Sign In
+                </Button>
+              </div>
+            )}
+            {!userHasPhone && (
+              <div>
+                <Button
+                  variant="secondary"
+                  className="mt-3"
+                  onClick={onAddPhoneSignInClicked}
+                >
+                  Add Phone details
                 </Button>
               </div>
             )}
