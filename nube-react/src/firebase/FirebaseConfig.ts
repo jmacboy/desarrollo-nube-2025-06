@@ -2,9 +2,7 @@ import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { getAuth } from "firebase/auth";
 import * as firebaseui from "firebaseui";
-
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+import { getFirestore } from "firebase/firestore";
 
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
@@ -25,5 +23,7 @@ export const firebaseApp = initializeApp(firebaseConfig);
 export const firebaseAnalytics = getAnalytics(firebaseApp);
 const firebaseAuth = getAuth(firebaseApp);
 export const firebaseUi = new firebaseui.auth.AuthUI(firebaseAuth);
+export const firebaseDb = getFirestore(firebaseApp);
+
 firebaseAuth.useDeviceLanguage();
 export { firebaseAuth };

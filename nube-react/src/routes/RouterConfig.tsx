@@ -5,6 +5,7 @@ import { LoginPage } from "../pages/LoginPage";
 import { RegisterPage } from "../pages/RegisterPage";
 import { LinkWighPasswordPage } from "../pages/LinkWithPasswordPage";
 import PhoneCheckPage from "../pages/PhoneCheckPage";
+import ContactsPage from "../pages/contacts/ContactsPage";
 
 export const RouterConfig = () => {
   return (
@@ -15,6 +16,7 @@ export const RouterConfig = () => {
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/linkpassword" element={<LinkWighPasswordPage />} />
       <Route path="/phonecheck" element={<PhoneCheckPage />} />
+      <Route path="/contacts" element={<ContactsPage />} />
       <Route path="*" element={<HomePage />} />
     </Routes>
   );
