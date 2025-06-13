@@ -1,4 +1,4 @@
-import type { SelectOption } from "../../components/Select";
+import type { SelectOption } from "../components/Select";
 
 export const ContactType = {
   Email: 1,

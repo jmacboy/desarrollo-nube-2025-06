@@ -139,6 +139,7 @@ export const useFirebaseUser = () => {
     console.log("Account linking success", user);
     return true;
   };
+
   return {
     user,
     userLoading,

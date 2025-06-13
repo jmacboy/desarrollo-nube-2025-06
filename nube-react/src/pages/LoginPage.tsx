@@ -34,18 +34,19 @@ export const LoginPage = () => {
               label="Email"
               type="email"
               aria-invalid={errors.email ? "true" : "false"}
+              error={
+                errors.email?.type === "value"
+                  ? "It should be a valid email"
+                  : errors.email && "This field is required"
+              }
               {...register("email", { required: true })}
             />
-            {errors.email && <span>This field is required</span>}
-            {errors.email?.type === "value" && (
-              <p role="alert">It should be a valid email</p>
-            )}
             <Input
               label="Password"
               type="password"
               {...register("password", { required: true })}
+              error={errors.password && "This field is required"}
             />
-            {errors.password && <span>This field is required</span>}
 
             <Button variant="primary" type="submit">
               Login
@@ -53,6 +54,7 @@ export const LoginPage = () => {
             <Button
               variant="primary"
               type="button"
+              className="ml-2"
               onClick={onGoogleSignInClick}
             >
               Login wigh Gmail

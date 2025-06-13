@@ -2,47 +2,93 @@ import { useForm, type SubmitHandler } from "react-hook-form";
 import Button from "../../components/Button";
 import { Dialog } from "../../components/Dialog";
 import { Input } from "../../components/Input";
-import { ContactType, ContactTypeOptions } from "../models/ContactType";
+import { ContactType, ContactTypeOptions } from "../../models/ContactType";
 import { ContactRepository } from "../../repositories/ContactRepository";
-import type { Contact } from "../models/Contact";
 import { Select } from "../../components/Select";
+import { useContext, useEffect } from "react";
+import { useFirebaseUser } from "../../hooks/useFirebaseUser";
+import { ContactContext } from "./ContactContext";
 
-type Props = {
-  isOpen: boolean;
-  setIsOpen: (isOpen: boolean) => void;
-  onContactAdded: (contact: Contact) => void;
-};
 type Inputs = {
   name: string;
   lastName: string;
   type: number;
   detail: string;
 };
-export const ContactDialog = ({ isOpen, setIsOpen, onContactAdded }: Props) => {
+export const ContactDialog = () => {
+  const {
+    contactToEdit,
+    isDialogOpen,
+    setIsDialogOpen,
+    setReloadFlag,
+    reloadFlag,
+  } = useContext(ContactContext);
+  const { user } = useFirebaseUser();
   const {
     register,
     handleSubmit,
     reset,
     formState: { errors },
   } = useForm<Inputs>();
+
+  useEffect(() => {
+    if (contactToEdit && isDialogOpen) {
+      reset({
+        name: contactToEdit.name,
+        lastName: contactToEdit.lastName,
+        type: contactToEdit.type,
+        detail: contactToEdit.detail,
+      });
+    } else {
+      reset({
+        name: "",
+        lastName: "",
+        type: ContactType.Email,
+        detail: "",
+      });
+    }
+  }, [contactToEdit, isDialogOpen, reset]);
+
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     console.log(data);
-    const contact = await new ContactRepository().addContact({
+    if (contactToEdit) {
+      updateContact(data);
+    } else {
+      addContact(data);
+    }
+  };
+  const updateContact = async (data: Inputs) => {
+    const updatedContact = await new ContactRepository().updateContact({
+      id: contactToEdit?.id,
       name: data.name,
       lastName: data.lastName,
       type: data.type as ContactType,
       detail: data.detail,
+      ownerId: user!.uid,
     });
-    console.log("Contact added:", contact);
-    setIsOpen(false);
-    onContactAdded(contact);
+    console.log("Contact updated:", updatedContact);
+    setIsDialogOpen(false);
+    setReloadFlag(reloadFlag + 1);
+    reset();
+  };
+  const addContact = async (data: Inputs) => {
+    const submittedContact = await new ContactRepository().addContact({
+      name: data.name,
+      lastName: data.lastName,
+      type: data.type as ContactType,
+      detail: data.detail,
+      ownerId: user!.uid,
+    });
+    console.log("Contact added:", submittedContact);
+    setIsDialogOpen(false);
+    setReloadFlag(reloadFlag + 1);
     reset();
   };
   return (
     <Dialog
-      isOpen={isOpen}
+      isOpen={isDialogOpen}
       onClose={() => {
-        setIsOpen(false);
+        setIsDialogOpen(false);
         reset();
       }}
     >
