@@ -4,13 +4,18 @@ import Card from "../../components/Card";
 import { useEffect, useState } from "react";
 
 import { useNavigate } from "react-router";
+import { useFirebaseNotifications } from "../../hooks/useFirebaseNotifications";
 
 export const LoggedInUser = () => {
   const navigate = useNavigate();
   const { user, logout } = useFirebaseUser();
+  const { token } = useFirebaseNotifications();
   const [userHasGoogle, setUserHasGoogle] = useState(false);
   const [userHasPassword, setUserHasPassword] = useState(false);
   const [userHasPhone, setUserHasPhone] = useState(false);
+  useEffect(() => {
+    console.log("Firebase token:", token);
+  }, [token]);
   useEffect(() => {
     if (!user) {
       return;
