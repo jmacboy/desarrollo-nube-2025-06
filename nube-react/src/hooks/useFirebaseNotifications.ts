@@ -1,8 +1,11 @@
 import { getToken, onMessage } from "firebase/messaging";
 import { firebaseMessaging } from "../firebase/FirebaseConfig";
 import { useEffect, useState } from "react";
+import { UserRepository } from "../repositories/UserRepository";
+import { useFirebaseUser } from "./useFirebaseUser";
 
 export const useFirebaseNotifications = () => {
+  const { user } = useFirebaseUser();
   const [token, setToken] = useState<string | null>(null);
   const [loadingToken, setLoadingToken] = useState<boolean>(true);
   useEffect(() => {
@@ -27,9 +30,23 @@ export const useFirebaseNotifications = () => {
     obtainToken();
     onMessage(firebaseMessaging, (payload) => {
       console.log("Message received. ", payload);
-      // ...
     });
   }, []);
+  useEffect(() => {
+    if (!token || !user) {
+      return;
+    }
+    console.log("Firebase token updated:", token);
+    const handleTokenUpdate = async () => {
+      const repository = new UserRepository();
+      const profile = await repository.createOrUpdateNotificationToken(
+        user!.uid,
+        token!
+      );
+      repository.subscribeToTopic(profile);
+    };
+    handleTokenUpdate();
+  }, [token, user]);
 
   return { token, loadingToken };
 };

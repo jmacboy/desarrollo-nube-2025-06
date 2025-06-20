@@ -22,7 +22,7 @@ export class ContactRepository {
       if (contact.id) {
         delete contact.id;
       }
-      addDoc(collection(firebaseDb, this.collectionName), {
+      addDoc(this.getCollectionRef(), {
         ...contact,
       })
         .then((docRef) => {
