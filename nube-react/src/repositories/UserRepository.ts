@@ -1,6 +1,7 @@
 import { collection, doc, getDoc, setDoc } from "firebase/firestore";
 import { firebaseDb } from "../firebase/FirebaseConfig";
 import { Profile } from "../models/Profile";
+import axios from "axios";
 
 export class UserRepository {
   collectionName = "profiles";
@@ -89,7 +90,32 @@ export class UserRepository {
         });
     });
   }
-  subscribeToTopic(uid: string) {
-    throw new Error("Method not implemented.");
+  subscribeToTopic(topic: string, profile: Profile) {
+    if (!profile.id) {
+      console.error("Profile ID is required to subscribe to topic.");
+      return;
+    }
+    if (
+      !profile.notificationTokens ||
+      profile.notificationTokens.length === 0
+    ) {
+      console.error("No notification tokens available for subscription.");
+      return;
+    }
+    return new Promise<void>((resolve, reject) => {
+      axios
+        .post(`https://subscribetotopic-hwdpxx5abq-uc.a.run.app`, {
+          topic: topic,
+          userId: profile.id,
+        })
+        .then(() => {
+          console.log(`Subscribed to topic ${topic} for user ${profile.id}`);
+          resolve();
+        })
+        .catch((error) => {
+          console.error("Error subscribing to topic:", error);
+          reject(error);
+        });
+    });
   }
 }

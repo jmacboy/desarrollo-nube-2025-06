@@ -4,6 +4,8 @@ import Card from "../../components/Card";
 import type { Contact } from "../../models/Contact";
 import { ContactTypeStrings } from "../../models/ContactType";
 import { ContactRepository } from "../../repositories/ContactRepository";
+import { NotificationsRepository } from "../../repositories/NotificationsRepository";
+import { CONTACT_NOTIFICATION_TOPIC } from "../../constants/NotificationConstants";
 
 type Props = {
   contact: Contact;
@@ -19,13 +21,19 @@ export const ContactInfo = ({
     const contactToEdit = await new ContactRepository().getContactById(
       contact.id!
     );
+
     if (contactToEdit === null) {
       return;
     }
     onEditCallback(contactToEdit);
   };
-  const onContactDeleteClick = () => {
-    new ContactRepository().deleteContact(contact.id!);
+  const onContactDeleteClick = async () => {
+    await new ContactRepository().deleteContact(contact.id!);
+    await new NotificationsRepository().sendMessageToTopic(
+      CONTACT_NOTIFICATION_TOPIC,
+      "Contact Delete",
+      `Deleting contact: ${contact.name} ${contact.lastName}`
+    );
     onDeleteCallback();
   };
   return (

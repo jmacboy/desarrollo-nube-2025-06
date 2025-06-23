@@ -1,13 +1,16 @@
 import { getToken, onMessage } from "firebase/messaging";
 import { firebaseMessaging } from "../firebase/FirebaseConfig";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { UserRepository } from "../repositories/UserRepository";
 import { useFirebaseUser } from "./useFirebaseUser";
+import { CONTACT_NOTIFICATION_TOPIC } from "../constants/NotificationConstants";
+import { GlobalContext } from "../context/GlobalContext";
 
 export const useFirebaseNotifications = () => {
   const { user } = useFirebaseUser();
   const [token, setToken] = useState<string | null>(null);
   const [loadingToken, setLoadingToken] = useState<boolean>(true);
+  const { addNotification } = useContext(GlobalContext);
   useEffect(() => {
     const obtainToken = async () => {
       try {
@@ -30,8 +33,12 @@ export const useFirebaseNotifications = () => {
     obtainToken();
     onMessage(firebaseMessaging, (payload) => {
       console.log("Message received. ", payload);
+      addNotification({
+        title: payload.notification?.title || "New Notification",
+        body: payload.notification?.body || "You have a new message.",
+      });
     });
-  }, []);
+  }, [addNotification]);
   useEffect(() => {
     if (!token || !user) {
       return;
@@ -43,7 +50,9 @@ export const useFirebaseNotifications = () => {
         user!.uid,
         token!
       );
-      repository.subscribeToTopic(profile);
+      if (profile.isAdmin) {
+        repository.subscribeToTopic(CONTACT_NOTIFICATION_TOPIC, profile);
+      }
     };
     handleTokenUpdate();
   }, [token, user]);

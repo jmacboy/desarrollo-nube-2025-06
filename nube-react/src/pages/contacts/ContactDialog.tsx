@@ -8,6 +8,8 @@ import { Select } from "../../components/Select";
 import { useContext, useEffect } from "react";
 import { useFirebaseUser } from "../../hooks/useFirebaseUser";
 import { ContactContext } from "./ContactContext";
+import { NotificationsRepository } from "../../repositories/NotificationsRepository";
+import { CONTACT_NOTIFICATION_TOPIC } from "../../constants/NotificationConstants";
 
 type Inputs = {
   name: string;
@@ -66,6 +68,11 @@ export const ContactDialog = () => {
       detail: data.detail,
       ownerId: user!.uid,
     });
+    await new NotificationsRepository().sendMessageToTopic(
+      CONTACT_NOTIFICATION_TOPIC,
+      "Contact Edit",
+      `Editing contact: ${data.name} ${data.lastName}`
+    );
     console.log("Contact updated:", updatedContact);
     setIsDialogOpen(false);
     setReloadFlag(reloadFlag + 1);
@@ -79,6 +86,11 @@ export const ContactDialog = () => {
       detail: data.detail,
       ownerId: user!.uid,
     });
+    await new NotificationsRepository().sendMessageToTopic(
+      CONTACT_NOTIFICATION_TOPIC,
+      "Contact added",
+      `Added contact: ${data.name} ${data.lastName}`
+    );
     console.log("Contact added:", submittedContact);
     setIsDialogOpen(false);
     setReloadFlag(reloadFlag + 1);
