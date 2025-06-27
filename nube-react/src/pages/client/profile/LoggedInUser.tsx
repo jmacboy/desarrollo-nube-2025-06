@@ -1,10 +1,10 @@
-import Button from "../../components/Button";
-import { useFirebaseUser } from "../../hooks/useFirebaseUser";
-import Card from "../../components/Card";
+import Button from "../../../components/Button";
+import { useFirebaseUser } from "../../../hooks/useFirebaseUser";
+import Card from "../../../components/Card";
 import { useEffect, useState } from "react";
 
 import { useNavigate } from "react-router";
-import { useFirebaseNotifications } from "../../hooks/useFirebaseNotifications";
+import { useFirebaseNotifications } from "../../../hooks/useFirebaseNotifications";
 
 export const LoggedInUser = () => {
   const navigate = useNavigate();

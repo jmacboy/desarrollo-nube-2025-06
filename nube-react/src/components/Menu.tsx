@@ -5,12 +5,16 @@ import { useFirebaseUser } from "../hooks/useFirebaseUser";
 
 const Menu = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { user, logout } = useFirebaseUser();
+
+  const { user, isAdmin, logout } = useFirebaseUser();
+
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+
   const links = user
     ? [
         { to: "/", label: "Home" },
         { to: "/contacts", label: "Contacts" },
+        { to: "/products", label: "Products" },
       ]
     : [
         { to: "/", label: "Home" },
@@ -50,42 +54,64 @@ const Menu = () => {
               </Link>
             ))}
             {user && (
-              <div className="relative">
-                <button
-                  onClick={() => toggleDropdown("user")}
-                  className="text-gray-300 hover:text-white focus:outline-none cursor-pointer"
-                >
-                  {user.displayName || "User"}
-                  {user.photoURL ? (
-                    <img
-                      src={user.photoURL}
-                      alt="User Avatar"
-                      className="inline-block h-8 w-8 rounded-full ml-2 object-fill"
-                    />
-                  ) : (
-                    <PersonCircle
-                      size={24}
-                      className="inline-block h-5 w-5 rounded-full ml-2 object-fill"
-                    />
-                  )}
-                </button>
-                {openDropdown === "user" && (
-                  <div className="absolute right-0 mt-2 w-48 bg-gray-800 rounded-md shadow-lg">
-                    <Link
-                      to="/settings"
-                      className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700"
-                    >
-                      Settings
-                    </Link>
+              <>
+                {isAdmin && (
+                  <div className="relative">
                     <button
-                      onClick={onLogoutClick}
-                      className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 cursor-pointer w-full text-left"
+                      onClick={() => toggleDropdown("admin")}
+                      className="text-gray-300 hover:text-white focus:outline-none cursor-pointer"
                     >
-                      Logout
+                      Administration
                     </button>
+                    {openDropdown === "admin" && (
+                      <div className="absolute right-0 mt-2 w-48 bg-gray-800 rounded-md shadow-lg">
+                        <Link
+                          to="/admin/products"
+                          className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700"
+                        >
+                          Manage Products
+                        </Link>
+                      </div>
+                    )}
                   </div>
                 )}
-              </div>
+                <div className="relative">
+                  <button
+                    onClick={() => toggleDropdown("user")}
+                    className="text-gray-300 hover:text-white focus:outline-none cursor-pointer"
+                  >
+                    {user.displayName || "User"}
+                    {user.photoURL ? (
+                      <img
+                        src={user.photoURL}
+                        alt="User Avatar"
+                        className="inline-block h-8 w-8 rounded-full ml-2 object-fill"
+                      />
+                    ) : (
+                      <PersonCircle
+                        size={24}
+                        className="inline-block h-5 w-5 rounded-full ml-2 object-fill"
+                      />
+                    )}
+                  </button>
+                  {openDropdown === "user" && (
+                    <div className="absolute right-0 mt-2 w-48 bg-gray-800 rounded-md shadow-lg">
+                      <Link
+                        to="/settings"
+                        className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700"
+                      >
+                        Settings
+                      </Link>
+                      <button
+                        onClick={onLogoutClick}
+                        className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 cursor-pointer w-full text-left"
+                      >
+                        Logout
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </>
             )}
           </div>
         </div>
@@ -104,41 +130,65 @@ const Menu = () => {
             </Link>
           ))}
           {user && (
-            <button
-              onClick={() => toggleDropdown("user")}
-              className="block text-gray-300 hover:text-white cursor-pointer w-full text-left"
-            >
-              {user.displayName || "User"}
-              {user.photoURL ? (
-                <img
-                  src={user.photoURL}
-                  alt="User Avatar"
-                  className="inline-block h-8 w-8 rounded-full ml-2 object-fill"
-                />
-              ) : (
-                <PersonCircle
-                  size={24}
-                  className="inline-block h-5 w-5 rounded-full ml-2 object-fill"
-                />
-              )}
-            </button>
-          )}
-          {openDropdown === "user" && (
-            <div className="mt-2 bg-gray-800 rounded-md shadow-lg">
-              <Link
-                to="/settings"
-                className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700"
-              >
-                Settings
-              </Link>
+            <>
+              <div>
+                <button
+                  onClick={() => toggleDropdown("admin")}
+                  className="block text-gray-300 hover:text-white cursor-pointer w-full text-left"
+                >
+                  Administration
+                </button>
 
-              <button
-                onClick={onLogoutClick}
-                className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 cursor-pointer w-full text-left"
-              >
-                Logout
-              </button>
-            </div>
+                {openDropdown === "admin" && (
+                  <div className="mt-2 bg-gray-800 rounded-md shadow-lg">
+                    <Link
+                      to="/admin/products"
+                      className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700"
+                    >
+                      Manage Products
+                    </Link>
+                  </div>
+                )}
+              </div>
+              <div>
+                <button
+                  onClick={() => toggleDropdown("user")}
+                  className="block text-gray-300 hover:text-white cursor-pointer w-full text-left"
+                >
+                  {user.displayName || "User"}
+                  {user.photoURL ? (
+                    <img
+                      src={user.photoURL}
+                      alt="User Avatar"
+                      className="inline-block h-8 w-8 rounded-full ml-2 object-fill"
+                    />
+                  ) : (
+                    <PersonCircle
+                      size={24}
+                      className="inline-block h-5 w-5 rounded-full ml-2 object-fill"
+                    />
+                  )}
+                </button>
+
+                {openDropdown === "user" && (
+                  <div className="mt-2 bg-gray-800 rounded-md shadow-lg">
+                    <Link
+                      to="/settings"
+                      className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700"
+                    >
+                      Settings
+                    </Link>
+
+                    <button
+                      onClick={onLogoutClick}
+                      className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 cursor-pointer w-full text-left"
+                    >
+                      Logout
+                    </button>
+                  </div>
+                )}
+              </div>
+            </>
           )}
         </div>
       )}

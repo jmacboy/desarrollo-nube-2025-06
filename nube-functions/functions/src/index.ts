@@ -13,6 +13,13 @@ import * as admin from "firebase-admin";
 import {UserRepository} from "./repositories/UserRepository";
 import {NotificationsRepository} from "./repositories/NotificationsRepository";
 import cors from "cors";
+import {
+  onDocumentCreated,
+  onDocumentDeleted,
+  onDocumentUpdated,
+} from "firebase-functions/firestore";
+import {analytics} from "firebase-functions/v1";
+import {ProductRepository} from "./repositories/ProductRepository";
 // Start writing functions
 // https://firebase.google.com/docs/functions/typescript
 admin.initializeApp();
@@ -128,3 +135,96 @@ export const sendNewMessageNotification = onRequest(
     });
   },
 );
+export const notifyAdminsOnContactCreation = onDocumentCreated(
+  "contacts/{contactId}",
+  (event) => {
+    const snapshot = event.data;
+    if (!snapshot) {
+      console.log("No data associated with the event");
+      return;
+    }
+    const data = snapshot.data();
+    new NotificationsRepository()
+      .sendMessageToTopic(
+        "contactNotifications",
+        "Contact added",
+        "Added contact " + data.name + " " + data.lastName,
+      )
+      .then((res) => {
+        logger.info("Message sent successfully:", res);
+      })
+      .catch((error) => {
+        logger.error("Error sending message:", error);
+      });
+  },
+);
+export const notifyAdminsOnContactUpdate = onDocumentUpdated(
+  "contacts/{contactId}",
+  (event) => {
+    if (!event.data || !event.data.after) {
+      console.log("No data associated with the event");
+      return;
+    }
+    const data = event.data.after.data();
+    new NotificationsRepository()
+      .sendMessageToTopic(
+        "contactNotifications",
+        "Contact updated",
+        "Updated contact " + data.name + " " + data.lastName,
+      )
+      .then((res) => {
+        logger.info("Message sent successfully:", res);
+      })
+      .catch((error) => {
+        logger.error("Error sending message:", error);
+      });
+  },
+);
+export const notifyAdminsOnContactDelete = onDocumentDeleted(
+  "contacts/{contactId}",
+  (event) => {
+    const snapshot = event.data;
+    if (!snapshot) {
+      console.log("No data associated with the event");
+      return;
+    }
+    const data = snapshot.data();
+    new NotificationsRepository()
+      .sendMessageToTopic(
+        "contactNotifications",
+        "Contact deleted",
+        "Deleted contact " + data.name + " " + data.lastName,
+      )
+      .then((res) => {
+        logger.info("Message sent successfully:", res);
+      })
+      .catch((error) => {
+        logger.error("Error sending message:", error);
+      });
+  },
+);
+export const sendInterestedMail = analytics
+  .event("exit_product_detail")
+  .onLog(async (event) => {
+    const user = event.user;
+    const userId = user?.userId;
+    const productSlug = event.params?.productSlug;
+    if (!userId || !productSlug) {
+      logger.error("Missing userId or productSlug in event data");
+      return;
+    }
+    const theProduct = await new ProductRepository(
+      admin.firestore(),
+    ).getProductBySlug(productSlug);
+    if (!theProduct) {
+      logger.error(`Product with slug ${productSlug} not found`);
+      return;
+    }
+    const userRepository = new UserRepository(admin.firestore());
+    const userProfile = await userRepository.getProfileById(userId);
+    if (!userProfile) {
+      logger.error(`User profile with ID ${userId} not found`);
+      return;
+    }
+    // TODO: Send mail here
+  });
