@@ -18,15 +18,19 @@ export const ProductDetailPage = () => {
       product_slug: productSlug,
       userId: user.uid,
     });
-    const onBeforeUnload = (event: BeforeUnloadEvent) => {
+    // const onBeforeUnload = (event: BeforeUnloadEvent) => {
+
+    //   return true;
+    // };
+    // window.addEventListener("beforeunload", onBeforeUnload);
+    return () => {
+      // window.removeEventListener("beforeunload", onBeforeUnload);
+      console.log("Cleaning up event listener for beforeunload", {
+        productSlug: productSlug,
+      });
       logEvent(firebaseAnalytics, "exit_product_detail", {
         productSlug: productSlug,
       });
-      return true;
-    };
-    window.addEventListener("beforeunload", onBeforeUnload);
-    return () => {
-      window.removeEventListener("beforeunload", onBeforeUnload);
     };
   }, [productSlug, user]);
   return (

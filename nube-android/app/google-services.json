@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "271999023910",
+    "project_id": "desarrollo-nube-2025",
+    "storage_bucket": "desarrollo-nube-2025.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:271999023910:android:ffd8cf790ba46dcc51dfe7",
+        "android_client_info": {
+          "package_name": "com.example.nubeandroid"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "271999023910-et6igfoh7tp1govaavmh7cj3hj03am78.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAjXcK-oQu7reaqdep8DBkAeGyeOl5lydk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "271999023910-et6igfoh7tp1govaavmh7cj3hj03am78.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

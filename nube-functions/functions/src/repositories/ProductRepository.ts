@@ -1,4 +1,4 @@
-import {Profile} from "../models/Profile";
+import {Product} from "../models/Product";
 
 /**
  * Repository for user profile operations in Firestore.
@@ -19,7 +19,7 @@ export class ProductRepository {
    * @return {Promise<Profile | null>}
    * A promise that resolves to the Profile or null if not found.
    */
-  getProductBySlug(id: string): Promise<Profile | null> {
+  getProductBySlug(id: string): Promise<Product | null> {
     return new Promise((resolve, reject) => {
       this.firestore
         .collection(this.collectionName)
@@ -28,7 +28,7 @@ export class ProductRepository {
         .then((doc) => {
           if (doc.exists) {
             const data = doc.data();
-            resolve(Profile.fromFirestore(doc.id, data));
+            resolve(Product.fromFirestore(doc.id, data));
           } else {
             resolve(null);
           }

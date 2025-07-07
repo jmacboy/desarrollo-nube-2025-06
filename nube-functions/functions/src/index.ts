@@ -18,14 +18,16 @@ import {
   onDocumentDeleted,
   onDocumentUpdated,
 } from "firebase-functions/firestore";
-import {analytics} from "firebase-functions/v1";
-import {ProductRepository} from "./repositories/ProductRepository";
+// import {analytics} from "firebase-functions/v1";
+// import {ProductRepository} from "./repositories/ProductRepository";
+import {MailRepository} from "./repositories/MailRepository";
 // Start writing functions
 // https://firebase.google.com/docs/functions/typescript
 admin.initializeApp();
 const corsHandler = cors({
   origin: ["http://localhost:5173", "http://127.0.0.1:5173"],
 });
+
 export const subscribeToTopic = onRequest((request, response) =>
   corsHandler(request, response, async () => {
     if (request.method !== "POST") {
@@ -156,6 +158,27 @@ export const notifyAdminsOnContactCreation = onDocumentCreated(
       .catch((error) => {
         logger.error("Error sending message:", error);
       });
+    admin
+      .auth()
+      .getUser(data.ownerId)
+      .then((fbUser) => {
+        new MailRepository()
+          .sendMail(
+            fbUser.email || "",
+            "New Contact Added",
+            `A new contact has been added: ${data.name} ${data.lastName}.`,
+            `<strong>contact added: ${data.name} ${data.lastName}.</strong>`,
+          )
+          .then(() => {
+            logger.info("Email sent successfully to:", fbUser.email);
+          })
+          .catch((error) => {
+            logger.error("Error sending email:", error);
+          });
+      })
+      .catch((error) => {
+        logger.error("Error getting user by email:", error);
+      });
   },
 );
 export const notifyAdminsOnContactUpdate = onDocumentUpdated(
@@ -203,28 +226,40 @@ export const notifyAdminsOnContactDelete = onDocumentDeleted(
       });
   },
 );
-export const sendInterestedMail = analytics
-  .event("exit_product_detail")
-  .onLog(async (event) => {
-    const user = event.user;
-    const userId = user?.userId;
-    const productSlug = event.params?.productSlug;
-    if (!userId || !productSlug) {
-      logger.error("Missing userId or productSlug in event data");
-      return;
-    }
-    const theProduct = await new ProductRepository(
-      admin.firestore(),
-    ).getProductBySlug(productSlug);
-    if (!theProduct) {
-      logger.error(`Product with slug ${productSlug} not found`);
-      return;
-    }
-    const userRepository = new UserRepository(admin.firestore());
-    const userProfile = await userRepository.getProfileById(userId);
-    if (!userProfile) {
-      logger.error(`User profile with ID ${userId} not found`);
-      return;
-    }
-    // TODO: Send mail here
-  });
+// export const sendInterestedMail = analytics
+//   .event("exit_product_detail")
+//   .onLog(async (event) => {
+//     const user = event.user;
+//     const userId = user?.userId;
+//     const productSlug = event.params?.productSlug;
+//     if (!userId || !productSlug) {
+//       logger.error("Missing userId or productSlug in event data");
+//       return;
+//     }
+//     const theProduct = await new ProductRepository(
+//       admin.firestore(),
+//     ).getProductBySlug(productSlug);
+//     if (!theProduct) {
+//       logger.error(`Product with slug ${productSlug} not found`);
+//       return;
+//     }
+//     const userRepository = new UserRepository(admin.firestore());
+//     const userProfile = await userRepository.getProfileById(userId);
+//     if (!userProfile) {
+//       logger.error(`User profile with ID ${userId} not found`);
+//       return;
+//     }
+//     const fbUser = await admin.auth().getUser(userId);
+//     if (!fbUser) {
+//       logger.error(`Firebase user with ID ${userId} not found`);
+//       return;
+//     }
+//     new MailRepository().sendMail(
+//       fbUser.email || "j.m.alvarez.camacho@gmail.com",
+//       "Product Interest Notification",
+//       `You have shown interest in the product: ${theProduct.name}.`,
+//       // eslint-disable-next-line max-len
+//       `<strong>You have shown interest in the product:
+// ${theProduct.name}.</strong>`,
+//     );
+//   });

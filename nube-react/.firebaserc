@@ -1,0 +1,8 @@
+{
+  "projects": {
+    "default": "desarrollo-nube-2025",
+    "nube-reat": "desarrollo-nube-2025"
+  },
+  "targets": {},
+  "etags": {}
+}

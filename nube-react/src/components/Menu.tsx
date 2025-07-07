@@ -44,6 +44,14 @@ const Menu = () => {
 
           {/* Desktop links */}
           <div className="hidden sm:flex sm:space-x-6">
+            <button
+              className="text-gray-300 hover:text-white"
+              onClick={() => {
+                throw new Error("This is your first error!");
+              }}
+            >
+              Do error
+            </button>
             {links.map((link) => (
               <Link
                 key={link.to}

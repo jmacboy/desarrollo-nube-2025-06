@@ -20,7 +20,7 @@ export const LoginPage = () => {
     console.log(data);
     loginWithFirebase(data.email, data.password);
   };
-  const onGoogleSignInClick = (e) => {
+  const onGoogleSignInClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     loginWithGoogle();
   };

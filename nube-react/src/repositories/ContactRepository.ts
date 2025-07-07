@@ -87,6 +87,7 @@ export class ContactRepository {
           resolve(contacts);
         })
         .catch((error) => {
+          console.error("Error getting documents: ", error);
           reject(error);
         });
     });
